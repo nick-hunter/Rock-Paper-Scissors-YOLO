@@ -1,0 +1,11 @@
+certifi==2019.9.11
+chardet==3.0.4
+docutils==0.15.2
+idna==2.8
+Kivy==1.11.1
+Kivy-Garden==0.1.4
+numpy==1.17.4
+opencv-python==4.1.1.26
+Pygments==2.4.2
+requests==2.22.0
+urllib3==1.25.7
