@@ -41,6 +41,13 @@ class ImageProcessor:
             return (False, None)
 
 
+    def get_frame_predictions(self):
+        try:
+            return (True, self.predictionQueue.get_nowait())
+        except queue.Empty:
+            return (False, None)
+
+
     def processThreadBody(self):
         # These values could be updated after the thread starts
 
