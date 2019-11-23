@@ -9,7 +9,7 @@ class ImageProcessor:
         self.ImageProvider = ImageProvider
         self.processedQueue = frameQueue()
         self.predictionQueue = queue.Queue()
-        self.processing = True
+        self.processing = False
         self.config = Config
         self.classes = self.load_classes()
 
@@ -34,12 +34,17 @@ class ImageProcessor:
     def get_classes(self):
         return self.classes
 
+    def start_processing(self, dt=0):
+        self.processing = True
+
+    def stop_processing(self):
+        self.processing = False
+
     def get_frame(self):
         try:
             return (True, self.processedQueue.get_nowait())
         except queue.Empty:
             return (False, None)
-
 
     def get_frame_predictions(self):
         try:
@@ -70,9 +75,9 @@ class ImageProcessor:
 
         while True:
             if not self.processing:
-                ret, frame = ImageProvider.get_frame()
+                ret, frame = self.ImageProvider.get_frame()
                 if ret:
-                    processedQueue.put(frame)
+                    self.processedQueue.put(frame)
             else:
                 ret, frame = self.ImageProvider.get_frame()
                 if ret:

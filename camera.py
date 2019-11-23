@@ -50,6 +50,7 @@ class ImageProvider:
         while True:
             hasFrame, frame = self.cap.read()
             if hasFrame:
+                frame = cv.flip(frame, 1)
                 self.framesQueue.put(frame)
 
 

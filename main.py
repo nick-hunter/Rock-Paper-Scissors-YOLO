@@ -64,14 +64,13 @@ class Application(App):
                 self.process.get_frame_predictions()
 
     def start_game(self, instance):
-        self.active_game = True
-        self.game_start = time.time()
         wait_interval = self.configuration.get_property('wait_interval')
 
         labels = ["Rock", "Paper", "Scissors", "Shoot"]
         for num, label in enumerate(labels, start=1):
             Clock.schedule_once(partial(self.update_label, label), num*wait_interval)
 
+        Clock.schedule_once(self.process.start_processing, 5*wait_interval)
         Clock.schedule_once(self.detect_play, 6*wait_interval)
         Clock.schedule_once(partial(self.update_label, "Play"), 4.0)
 
@@ -86,6 +85,7 @@ class Application(App):
         if has_prediction and predictions != []:
             self.process_play(predictions)
             self.consume_predictions = True
+            self.process.stop_processing()
         else:
             Clock.schedule_once(self.detect_play, 0.2)
 
@@ -93,7 +93,6 @@ class Application(App):
         rps = ['Rock', 'Paper', 'Scissors']
         computer_choice = random.choice(rps)
         print(predictions)
-
 
         choice = max(range(len(predictions)), key=lambda index: predictions[index]['confidence'])
         player_choice = predictions[choice]['class']
