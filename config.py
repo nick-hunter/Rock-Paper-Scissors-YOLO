@@ -5,12 +5,13 @@ config = {
     'inpWidth': 416,
     'inpHeight': 416,
     'scale': 0.00392,
-    'mean': [0,0,0],
+    'mean': [0, 0, 0],
     'confThreshold': 0.5,
     'nmsThreshold': 0.4,
     'circle_scale': 0.65,
     'wait_interval': 0.75
 }
+
 
 class Config:
     def __init__(self):

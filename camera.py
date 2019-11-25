@@ -1,13 +1,13 @@
 import cv2 as cv
 from threading import Thread
-from frame_queue import frameQueue
+from frame_queue import FrameQueue
 import queue
 
 
 class ImageProvider:
     def __init__(self):
         self.cameras = self.find_cameras()
-        self.framesQueue = frameQueue()
+        self.framesQueue = FrameQueue()
 
         # Do we have a camera?
         if len(self.cameras) < 1:
@@ -19,13 +19,12 @@ class ImageProvider:
         self.framesThread = Thread(target=self.framesThreadBody, daemon=True)
         self.framesThread.start()
 
-
     def find_cameras(self, count=1):
         cameras = list()
         for i in range(count):
             try:
                 cap = cv.VideoCapture(i)
-                if cap != None and cap.isOpened():
+                if cap is not None and cap.isOpened():
                     cameras.append({
                         'index': i,
                         'width': cap.get(cv.CAP_PROP_FRAME_WIDTH),
@@ -35,13 +34,11 @@ class ImageProvider:
                 pass
         return cameras
 
-
     def get_frame(self):
         try:
             return (True, self.framesQueue.get_nowait())
         except queue.Empty:
             return (False, None)
-
 
     def clear_frames(self):
         self.framesQueue.queue.clear()
@@ -53,8 +50,7 @@ class ImageProvider:
                 frame = cv.flip(frame, 1)
                 self.framesQueue.put(frame)
 
-
     def get_dimensions(self):
         width = self.cameras[self.current_camera]['width']
         height = self.cameras[self.current_camera]['height']
-        return (width,height)
+        return (width, height)

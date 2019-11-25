@@ -1,7 +1,8 @@
 import time
 import queue
 
-class frameQueue(queue.Queue):
+
+class FrameQueue(queue.Queue):
     def __init__(self):
         queue.Queue.__init__(self, maxsize=10)
         self.startTime = 0
