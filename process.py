@@ -3,6 +3,7 @@ import numpy as np
 from threading import Thread
 from frame_queue import FrameQueue
 import queue
+import time
 
 
 class ImageProcessor:
@@ -37,10 +38,15 @@ class ImageProcessor:
         return self.classes
 
     def start_processing(self, dt=0):
+        self.processedQueue.queue.clear()
+        self.predictionQueue.queue.clear()
         self.processing = True
 
     def stop_processing(self):
         self.processing = False
+
+    def is_processing(self):
+        return self.processing
 
     def get_frame(self):
         try:
@@ -76,9 +82,7 @@ class ImageProcessor:
 
         while True:
             if not self.processing:
-                ret, frame = self.ImageProvider.get_frame()
-                if ret:
-                    self.processedQueue.put(frame)
+                time.sleep(0.1)
             else:
                 ret, frame = self.ImageProvider.get_frame()
                 if ret:

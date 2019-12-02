@@ -18,9 +18,7 @@ class Config:
         self._config = config
 
     def get_property(self, property_name):
-        if property_name not in self._config.keys():
-            return None
-        return self._config[property_name]
+        return self._config.get(property_name)
 
     def set_property(self, property_name, property_value):
         self._config[property_name] = property_value

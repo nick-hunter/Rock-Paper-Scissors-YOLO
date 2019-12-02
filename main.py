@@ -53,17 +53,27 @@ class Application(App):
         return layout
 
     def update(self, dt):
-        has_frame, frame = self.process.get_frame()
-        if has_frame:
-            buf1 = cv.flip(frame, 0)
-            buf = buf1.tostring()
-            texture1 = Texture.create(size=(frame.shape[1], frame.shape[0]),
-                                      colorfmt='bgr')
-            texture1.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-            self.img.texture = texture1  # display image from the texture
+        if self.process.is_processing():
+            has_frame, frame = self.process.get_frame()
+            if has_frame:
+                buf1 = cv.flip(frame, 0)
+                buf = buf1.tostring()
+                texture1 = Texture.create(size=(frame.shape[1], frame.shape[0]),
+                                          colorfmt='bgr')
+                texture1.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+                self.img.texture = texture1  # display image from the texture
 
-            if self.consume_predictions:
-                self.process.get_frame_predictions()
+                if self.consume_predictions:
+                    self.process.get_frame_predictions()
+        else:
+            has_frame, frame = self.camera.get_frame()
+            if has_frame:
+                buf1 = cv.flip(frame, 0)
+                buf = buf1.tostring()
+                texture1 = Texture.create(size=(frame.shape[1], frame.shape[0]),
+                                          colorfmt='bgr')
+                texture1.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+                self.img.texture = texture1  # display image from the texture
 
     def start_game(self, instance):
         wait_interval = self.configuration.get_property('wait_interval')

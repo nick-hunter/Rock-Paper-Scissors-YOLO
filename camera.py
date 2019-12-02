@@ -4,6 +4,7 @@ from frame_queue import FrameQueue
 import queue
 
 
+
 class ImageProvider:
     def __init__(self):
         self.cameras = self.find_cameras()
