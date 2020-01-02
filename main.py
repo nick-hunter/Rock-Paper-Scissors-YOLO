@@ -22,7 +22,7 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.label import Label
 from kivy.core.window import Window
-#from kivy.uix.camera import Camera
+from kivy.uix.anchorlayout import AnchorLayout
 
 from kivy.config import Config as KivyConfig
 KivyConfig.set('input', 'mouse', 'mouse,multitouch_on_demand')
@@ -38,13 +38,23 @@ class Application(App):
         self.process = ImageProcessor(self.camera, self.configuration)
         self.game = Game()
 
-        self.img = Image(keep_ratio=True, allow_stretch=True, size_hint_x=1)
+        # Play button
         self.play = Button(text="Play", size_hint_x=1.0, size_hint_y=0.1)
         self.score_label = Label(text="", size_hint_y=0.1)
         self.play.bind(on_press=self.start_game)
-        layout = BoxLayout(orientation='vertical')
-        self.plays_layout = GridLayout(cols=2, size_hint = (.5, .3), padding = (5,5), pos_hint = {'center_x':.5})
 
+        # Main image and text overlay
+        self.img_layout = AnchorLayout(anchor_x='center', anchor_y='center')
+        self.img = Image(keep_ratio=True, allow_stretch=True, size_hint_x=1)
+        self.big_text = Label(text="", font_size='75sp', markup=True)
+        self.img_layout.add_widget(self.img)
+        self.img_layout.add_widget(self.big_text)
+
+        # Main layout
+        layout = BoxLayout(orientation='vertical')
+
+        # Bottom layout to display small images
+        self.plays_layout = GridLayout(cols=2, size_hint = (.5, .3), padding = (5,5), pos_hint = {'center_x':.5})
         self.player_img = Image(keep_ratio=True, allow_stretch=True, size_hint_x = .5, size_hint_y = 1, source=file_path("img/black.png"))
         self.computer_img = Image(keep_ratio=True, allow_stretch=True, size_hint_x = .5, size_hint_y = 1, source=file_path("img/black.png"))
         self.player_label = Label(text="",size_hint_x=.2)
@@ -57,12 +67,10 @@ class Application(App):
 
         layout.add_widget(self.play)
         layout.add_widget(self.score_label)
-        layout.add_widget(self.img)
+        layout.add_widget(self.img_layout)
         layout.add_widget(self.plays_layout)
 
         self.active_game = False
-        self.game_start = 0
-        self.rps_counter = 0
         self.last_frame = None
 
         self.computer_score = 0
@@ -86,10 +94,9 @@ class Application(App):
 
         Clock.schedule_once(self.process.start_processing, 6*wait_interval)
         Clock.schedule_once(self.detect_play, 6*wait_interval)
-        Clock.schedule_once(partial(self.update_label, "Play"), 8*wait_interval)
 
     def update_label(self, text, dt):
-        self.play.text = text
+        self.big_text.text = "[b]" + text + "[/b]"
 
     def detect_play(self, dt):
         object = None
@@ -105,6 +112,7 @@ class Application(App):
             Clock.schedule_once(self.detect_play, 0.2)
 
     def process_play(self, predictions):
+        self.big_text.text = ""
         print(predictions)
 
         computer_choice = self.game.next_play()
@@ -120,7 +128,7 @@ class Application(App):
 
         frame = self.last_frame[y:y+h, x:x+w]
         self.display_image(frame, self.player_img)
-        #self.display_image(frame, self.computer_img)
+
         if computer_choice == "Rock":
             self.computer_img.source = file_path('img/rock.png')
         elif computer_choice == "Paper":
