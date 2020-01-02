@@ -4,7 +4,9 @@ from threading import Thread
 from frame_queue import FrameQueue
 import queue
 import time
-
+import os
+import sys
+from utils import file_path
 
 class ImageProcessor:
     def __init__(self, ImageProvider, Config):
@@ -17,6 +19,7 @@ class ImageProcessor:
 
         self.processThread = Thread(target=self.processThreadBody, daemon=True)
         self.processThread.start()
+        self.draw = False
 
     def load_classes(self):
         classes_path = self.config.get_property('classes_path')
@@ -26,7 +29,7 @@ class ImageProcessor:
                            configured')
 
         try:
-            f = open(classes_path, "rt")
+            f = open(file_path(classes_path), "rt")
             classes = f.read().rstrip('\n').split('\n')
             f.close()
             return classes
@@ -44,6 +47,12 @@ class ImageProcessor:
 
     def stop_processing(self):
         self.processing = False
+
+    def start_drawing(self):
+        self.draw = True # Draw circles on processed frames around objects
+
+    def stop_drawing(self):
+        self.draw = False
 
     def is_processing(self):
         return self.processing
@@ -63,8 +72,8 @@ class ImageProcessor:
     def processThreadBody(self):
         # These values could be updated after the thread starts
 
-        weights_path = self.config.get_property('weights_path')
-        cfg_path = self.config.get_property('cfg_path')
+        weights_path = file_path(self.config.get_property('weights_path'))
+        cfg_path = file_path(self.config.get_property('cfg_path'))
 
         inpWidth = self.config.get_property('inpWidth')
         inpHeight = self.config.get_property('inpHeight')
@@ -133,15 +142,16 @@ class ImageProcessor:
 
                         object = self.classes[classIDs[i]]
 
-                        if object == "Rock":
-                            color = (255, 0, 0)
-                        elif object == "Paper":
-                            color = (0, 255, 0)
-                        elif object == "Scissors":
-                            color = (0, 0, 255)
+                        if self.draw:
+                            if object == "Rock":
+                                color = (255, 0, 0)
+                            elif object == "Paper":
+                                color = (0, 255, 0)
+                            elif object == "Scissors":
+                                color = (0, 0, 255)
 
-                        cv.circle(frame, (center_x, center_y), size, color,
-                                  thickness=3)
+                            cv.circle(frame, (center_x, center_y), size, color,
+                                      thickness=3)
 
                         prediction = {
                             'x': center_x,
