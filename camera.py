@@ -4,7 +4,6 @@ from frame_queue import FrameQueue
 import queue
 
 
-
 class ImageProvider:
     def __init__(self):
         self.cameras = self.find_cameras()
@@ -12,7 +11,7 @@ class ImageProvider:
 
         # Do we have a camera?
         if len(self.cameras) < 1:
-            raise UserWarning('No camera device found')
+           raise UserWarning('No camera device found')
 
         self.current_camera = self.cameras[0]['index']
         self.cap = cv.VideoCapture(self.current_camera)
