@@ -1,6 +1,11 @@
 # Old dev files
 old/
 
+api.key
+pictures/*
+config.json
+keras/
+
 .DS_Store
 
 # Byte-compiled / optimized / DLL files

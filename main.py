@@ -10,6 +10,7 @@ from process import ImageProcessor
 from game import Game
 from config import Config
 from utils import file_path
+from LabelboxUpload import LabelBoxUpload
 
 import kivy
 from kivy.app import App
@@ -31,12 +32,16 @@ kivy.require('1.11.1')
 
 
 class Application(App):
+    '''Application class for Kivy'''
+
     def build(self):
+        '''Build the user interface'''
         self.title = 'Rock Paper Scissors'
         self.configuration = Config()
         self.camera = ImageProvider()
         self.process = ImageProcessor(self.camera, self.configuration)
         self.game = Game()
+        self.LB = LabelBoxUpload()
 
         # Play button
         self.play = Button(text="Play", size_hint_x=1.0, size_hint_y=0.1)
@@ -56,14 +61,18 @@ class Application(App):
         # Bottom layout to display small images
         self.plays_layout = GridLayout(cols=2, size_hint = (.5, .3), padding = (5,5), pos_hint = {'center_x':.5})
         self.player_img = Image(keep_ratio=True, allow_stretch=True, size_hint_x = .5, size_hint_y = 1, source=file_path("img/black.png"))
+        self.wrong = Button(text="Something Wrong?")
+        self.wrong.bind(on_press=self.correction)
         self.computer_img = Image(keep_ratio=True, allow_stretch=True, size_hint_x = .5, size_hint_y = 1, source=file_path("img/black.png"))
         self.player_label = Label(text="",size_hint_x=.2)
         self.computer_label = Label(text="",size_hint_x=.2)
 
         self.plays_layout.add_widget(self.player_img)
+
         self.plays_layout.add_widget(self.computer_img)
         self.plays_layout.add_widget(self.player_label)
         self.plays_layout.add_widget(self.computer_label)
+        self.plays_layout.add_widget(self.wrong)
 
         layout.add_widget(self.play)
         layout.add_widget(self.score_label)
@@ -72,6 +81,7 @@ class Application(App):
 
         self.active_game = False
         self.last_frame = None
+        self.last_play = None
 
         self.computer_score = 0
         self.player_score = 0
@@ -80,11 +90,13 @@ class Application(App):
         return layout
 
     def update(self, dt):
+        '''Refresh the main image display'''
         has_frame, frame = self.camera.get_frame()
         if has_frame:
             self.display_image(frame, self.img)
 
     def start_game(self, instance):
+        '''Called to start a new game of Rock Paper Scissors'''
         wait_interval = self.configuration.get_property('wait_interval')
 
         labels = ["Rock", "Paper", "Scissors", "Shoot"]
@@ -96,9 +108,11 @@ class Application(App):
         Clock.schedule_once(self.detect_play, 6*wait_interval)
 
     def update_label(self, text, dt):
+        '''Sets the large text which is displayed over the camera feed'''
         self.big_text.text = "[b]" + text + "[/b]"
 
     def detect_play(self, dt):
+        '''Waits for a successful object detection'''
         object = None
 
         has_prediction, predictions = self.process.get_frame_predictions()
@@ -112,6 +126,7 @@ class Application(App):
             Clock.schedule_once(self.detect_play, 0.2)
 
     def process_play(self, predictions):
+        '''Process gameplay after a successful detection'''
         self.big_text.text = ""
         print(predictions)
 
@@ -120,6 +135,7 @@ class Application(App):
         choice = max(range(len(predictions)),
                      key=lambda index: predictions[index]['confidence'])
         player_choice = predictions[choice]['class']
+        self.last_play = player_choice
 
         x = predictions[choice]['x'] - (predictions[choice]['width']//2)
         y = predictions[choice]['y'] - (predictions[choice]['height']//2)
@@ -148,6 +164,12 @@ class Application(App):
                                 ", Player: " + str(score.player)
 
     def display_image(self, img, target):
+        '''Display an OpenCV image object in a Kivy image object
+
+        Args:
+            img: OpenCV image object
+            target: Kivy Image object
+        '''
         try:
             buf1 = cv.flip(img, 0)
             buf = buf1.tostring()
@@ -157,6 +179,21 @@ class Application(App):
             target.texture = texture1  # display image from the texture
         except AttributeError:
             raise
+
+    def correction(self, instance):
+        '''Correct for an incorrect object detection by removing the last round. The
+        offending image is then stored in the folder specified by corrections_path
+        in config.json. If Labelbox is configured, the image is then uploaded to
+        the specified dataset.
+        '''
+        filename = self.LB.save_pic(self.last_frame, self.last_play)
+        self.LB.upload_pic(filename)
+
+        # Remove last game
+        self.game.remove_round()
+        score = self.game.get_score()
+        self.score_label.text = "Computer: " + str(score.computer) + \
+                                ", Player: " + str(score.player)
 
 
 if __name__ == '__main__':

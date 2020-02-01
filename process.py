@@ -9,6 +9,9 @@ import sys
 from utils import file_path
 
 class ImageProcessor:
+    '''Process images with the OpenCV DNN YOLO implementation.
+
+    Images and predictions are stored in parallel queues.'''
     def __init__(self, ImageProvider, Config):
         self.ImageProvider = ImageProvider
         self.processedQueue = FrameQueue()
@@ -22,6 +25,7 @@ class ImageProcessor:
         self.draw = False
 
     def load_classes(self):
+        '''Load YOLO model class file'''
         classes_path = self.config.get_property('classes_path')
 
         if classes_path is None:
@@ -38,40 +42,71 @@ class ImageProcessor:
             exit(1)
 
     def get_classes(self):
+        '''Returns the ordered list of classes'''
         return self.classes
 
     def start_processing(self, dt=0):
+        '''Start processing images through the neural network'''
         self.processedQueue.queue.clear()
         self.predictionQueue.queue.clear()
         self.processing = True
 
     def stop_processing(self):
+        '''Stop processing images through the neural network'''
         self.processing = False
 
     def start_drawing(self):
-        self.draw = True # Draw circles on processed frames around objects
+        '''Start drawing circles on processed frames around detected objects'''
+        self.draw = True
 
     def stop_drawing(self):
+        '''Stop drawing circles'''
         self.draw = False
 
     def is_processing(self):
+        '''Returns True if images are currently being passed through the network'''
         return self.processing
 
     def get_frame(self):
+        '''Get the next processed frame from the queue
+
+        Returns:
+            A tuple where the first item is True if a frame exists in the
+            queue. If the frame queue is empty then the first value will be
+            False. The second item will either be image data or None depending
+            on if an image was availible.
+        '''
         try:
             return (True, self.processedQueue.get_nowait())
         except queue.Empty:
             return (False, None)
 
     def get_frame_predictions(self):
+        '''Get YOLO object detections from the prediction queue
+
+        Returns:
+            A tuple where the first item is True if a frame prediction exists in the
+            queue. The second item is either None (if no predictions are availible),
+            or a list of directories. Each dictonary is one object detection and
+            contains the following data:
+                x: box center pixel along image x-axis,
+                y: box center pixel along image y-axis,
+                width: box width in pixels,
+                height: box height in pixels,
+                class: 'Rock', 'Paper', or 'Scissors',
+                confidence: Percentage confidence value
+        '''
         try:
             return (True, self.predictionQueue.get_nowait())
         except queue.Empty:
             return (False, None)
 
     def processThreadBody(self):
+        '''Thread body which handles YOLO processing'''
+
         # These values could be updated after the thread starts
 
+        # Get configuration values
         weights_path = file_path(self.config.get_property('weights_path'))
         cfg_path = file_path(self.config.get_property('cfg_path'))
 
@@ -84,6 +119,7 @@ class ImageProcessor:
         nmsThreshold = self.config.get_property('nmsThreshold')
         circle_scale = self.config.get_property('circle_scale')
 
+        # Iniitialize the OpenCV darknet DNN module
         net = cv.dnn.readNet(weights_path, cfg_path, 'darknet')
         outNames = net.getUnconnectedOutLayersNames()
 

@@ -9,3 +9,4 @@ opencv-python==4.1.2.30
 Pygments==2.4.2
 requests==2.22.0
 urllib3==1.25.7
+labelbox==2.3
