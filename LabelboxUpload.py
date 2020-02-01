@@ -3,6 +3,7 @@ from labelbox import Client
 import numpy as np
 import cv2
 import time
+from pathlib import Path
 
 
 class LabelBoxUpload:
@@ -16,6 +17,8 @@ class LabelBoxUpload:
         self.configuration = Config()
         self.api_key = self.configuration.get_property('labelbox_key')
         self.dataset_id = self.configuration.get_property('labelbox_dataset')
+        self.path = self.configuration.get_property('corrections_path')
+        Path(self.path).mkdir(parents=True, exist_ok=True)
 
         if self.api_key is not None:
             self.client = Client(self.api_key)
@@ -30,8 +33,7 @@ class LabelBoxUpload:
         '''
         try:
             now = int(time.time())
-            path = self.configuration.get_property('corrections_path')
-            filename = path + "/" + detection + "-" + str(now) + ".jpg"
+            filename = self.path + "/" + detection + "-" + str(now) + ".jpg"
             cv2.imwrite(filename, img)
             return filename
         except Exception as e:
