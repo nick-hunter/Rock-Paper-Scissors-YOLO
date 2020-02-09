@@ -43,41 +43,52 @@ class Application(App):
         self.game = Game()
         self.LB = LabelBoxUpload()
 
+        sidebar_width = 0.3
+        frame_width, frame_height = self.camera.get_dimensions()
+        win_width, win_height = Window.size
+
+        # Set window size and position
+        Window.left = (win_width-frame_width)/2
+        Window.size = (frame_width, frame_height/(1+sidebar_width))
+
         # Play button
-        self.play = Button(text="Play", size_hint_x=1.0, size_hint_y=0.1)
-        self.score_label = Label(text="", size_hint_y=0.1)
+        self.play = Button(text="Play", size_hint_x=1.0, size_hint_y=0.1, font_size=50)
+        self.score_label = Label(text="", size_hint_y=0.1, font_size='20sp')
         self.play.bind(on_press=self.start_game)
 
         # Main image and text overlay
-        self.img_layout = AnchorLayout(anchor_x='center', anchor_y='center')
+        self.img_layout = AnchorLayout(anchor_x='left', anchor_y='center')
         self.img = Image(keep_ratio=True, allow_stretch=True, size_hint_x=1)
         self.big_text = Label(text="", font_size='75sp', markup=True)
         self.img_layout.add_widget(self.img)
         self.img_layout.add_widget(self.big_text)
 
         # Main layout
-        layout = BoxLayout(orientation='vertical')
+        self.layout = BoxLayout(orientation='horizontal')
+        self.sidebar = BoxLayout(orientation='vertical', size_hint_x=sidebar_width)
 
         # Bottom layout to display small images
-        self.plays_layout = GridLayout(cols=2, size_hint = (.5, .3), padding = (5,5), pos_hint = {'center_x':.5})
+        self.plays_layout = GridLayout(cols=1, size_hint = (.5, .3), padding = (2,2), pos_hint = {'center_x':.5}) #
         self.player_img = Image(keep_ratio=True, allow_stretch=True, size_hint_x = .5, size_hint_y = 1, source=file_path("img/black.png"))
-        self.wrong = Button(text="Something Wrong?")
+        self.wrong = Button(text="Something Wrong?", size_hint_y=.04, opacity=0)
         self.wrong.bind(on_press=self.correction)
         self.computer_img = Image(keep_ratio=True, allow_stretch=True, size_hint_x = .5, size_hint_y = 1, source=file_path("img/black.png"))
         self.player_label = Label(text="",size_hint_x=.2)
         self.computer_label = Label(text="",size_hint_x=.2)
 
         self.plays_layout.add_widget(self.player_img)
+        self.plays_layout.add_widget(self.player_label)
 
         self.plays_layout.add_widget(self.computer_img)
-        self.plays_layout.add_widget(self.player_label)
         self.plays_layout.add_widget(self.computer_label)
-        self.plays_layout.add_widget(self.wrong)
 
-        layout.add_widget(self.play)
-        layout.add_widget(self.score_label)
-        layout.add_widget(self.img_layout)
-        layout.add_widget(self.plays_layout)
+        self.sidebar.add_widget(self.play)
+        self.sidebar.add_widget(self.score_label)
+        self.sidebar.add_widget(self.plays_layout)
+        self.sidebar.add_widget(self.wrong)
+
+        self.layout.add_widget(self.img_layout)
+        self.layout.add_widget(self.sidebar)
 
         self.active_game = False
         self.last_frame = None
@@ -87,7 +98,7 @@ class Application(App):
         self.player_score = 0
 
         Clock.schedule_interval(self.update, 1.0/33.0)
-        return layout
+        return self.layout
 
     def update(self, dt):
         '''Refresh the main image display'''
@@ -152,6 +163,8 @@ class Application(App):
         else:
             self.computer_img.source = file_path('img/scissors.png')
 
+        self.wrong.opacity = 0.5
+
         print("Computer chose " + computer_choice)
         self.computer_label.text = "Computer - " + computer_choice
         print("Player chose " + player_choice)
@@ -194,6 +207,7 @@ class Application(App):
         score = self.game.get_score()
         self.score_label.text = "Computer: " + str(score.computer) + \
                                 ", Player: " + str(score.player)
+        self.player_label.text = "Player - Unknown"
 
 
 if __name__ == '__main__':
