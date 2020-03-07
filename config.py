@@ -13,7 +13,7 @@ class Config:
             self._config = {
                 'classes_path': 'model/obj.names',
                 'cfg_path': 'model/yolov3-three.cfg',
-                'weights_path': 'model/yolov3-rps_final.weights',
+                'weights_path': 'model/yolov3-rps.weights',
                 'inpWidth': 416,
                 'inpHeight': 416,
                 'scale': 0.00392,

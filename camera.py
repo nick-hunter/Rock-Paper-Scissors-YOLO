@@ -18,7 +18,7 @@ class ImageProvider:
         self.current_camera = self.cameras[0]['index']
         self.cap = cv.VideoCapture(self.current_camera)
 
-        self.framesThread = Thread(target=self.framesThreadBody, daemon=True)
+        self.framesThread = Thread(target=self.frames_thread_body, daemon=True)
         self.framesThread.start()
 
     def find_cameras(self, count=1):
@@ -65,7 +65,7 @@ class ImageProvider:
         '''Clear out the frames queue'''
         self.framesQueue.queue.clear()
 
-    def framesThreadBody(self):
+    def frames_thread_body(self):
         '''Daemon thread to capture images and place them in the frames queue'''
         while True:
             hasFrame, frame = self.cap.read()

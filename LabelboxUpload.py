@@ -18,7 +18,11 @@ class LabelBoxUpload:
         self.api_key = self.configuration.get_property('labelbox_key')
         self.dataset_id = self.configuration.get_property('labelbox_dataset')
         self.path = self.configuration.get_property('corrections_path')
-        Path(self.path).mkdir(parents=True, exist_ok=True)
+        
+        try:
+            Path(self.path).mkdir(parents=True, exist_ok=True)
+        except OSError:
+            pass
 
         if self.api_key is not None:
             self.client = Client(self.api_key)

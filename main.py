@@ -68,7 +68,7 @@ class Application(App):
         self.sidebar = BoxLayout(orientation='vertical', size_hint_x=sidebar_width)
 
         # Bottom layout to display small images
-        self.plays_layout = GridLayout(cols=1, size_hint = (.5, .3), padding = (2,2), pos_hint = {'center_x':.5}) #
+        self.plays_layout = GridLayout(cols=1, size_hint = (.5, .3), padding = (2,2), pos_hint = {'center_x':.5})
         self.player_img = Image(keep_ratio=True, allow_stretch=True, size_hint_x = .5, size_hint_y = 1, source=file_path("img/black.png"))
         self.wrong = Button(text="Something Wrong?", size_hint_y=.04, opacity=0)
         self.wrong.bind(on_press=self.correction)
@@ -131,10 +131,9 @@ class Application(App):
         if has_prediction and predictions != []:
             self.last_frame = frame
             self.process_play(predictions)
-
             self.process.stop_processing()
         else:
-            Clock.schedule_once(self.detect_play, 0.2)
+            Clock.schedule_once(self.detect_play, 0.05)
 
     def process_play(self, predictions):
         '''Process gameplay after a successful detection'''
@@ -163,7 +162,7 @@ class Application(App):
         else:
             self.computer_img.source = file_path('img/scissors.png')
 
-        self.wrong.opacity = 0.5
+        self.wrong.opacity = 0.5 # Make button visible
 
         print("Computer chose " + computer_choice)
         self.computer_label.text = "Computer - " + computer_choice
