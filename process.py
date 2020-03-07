@@ -172,7 +172,6 @@ class ImageProcessor:
                         width = box[2]
                         height = box[3]
 
-                        size = int(((width+height)/2)*circle_scale)
                         center_x = int(left+(width/2))
                         center_y = int(top+(height/2))
 
@@ -186,8 +185,7 @@ class ImageProcessor:
                             elif object == "Scissors":
                                 color = (0, 0, 255)
 
-                            cv.circle(frame, (center_x, center_y), size, color,
-                                      thickness=3)
+                            cv.rectangle(frame, (center_x-int(width/2), center_y+int(height/2)), (center_x+int(width/2), center_y-int(height/2)), color)
 
                         prediction = {
                             'x': center_x,
