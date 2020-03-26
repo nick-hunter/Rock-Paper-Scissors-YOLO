@@ -90,8 +90,12 @@ class Game:
     def remove_round(self):
         '''Remove the last round from history and recalculate score'''
         if len(self.history) > 0:
-            self.history.pop()
-            self.prediction_history.pop()
+
+            try:
+                self.history.pop()
+                self.prediction_history.pop()
+            except IndexError:
+                pass
 
             self.computer_score = 0
             self.player_score = 0
@@ -114,7 +118,7 @@ class Game:
             'Paper': 'Scissors',
             'Scissors': 'Rock'
         }
-        
+
         if len(self.model_input) >  0:
             X_ = keras.utils.to_categorical(self.model_input, 3)
             X_ = X_.reshape(1, X_.shape[0], 6)
@@ -130,10 +134,13 @@ class Game:
         ''' Returns the percentage of rounds predicted correctly '''
         rounds = len(self.history)
         correct = 0
-        for i in range(len(self.history)):
-            if self.history[i].player == self.prediction_history[i]:
-                correct += 1
-        return correct/rounds
+
+        if rounds == len(self.prediction_history):
+            for i in range(len(self.history)):
+                print(i)
+                if self.history[i].player == self.prediction_history[i]:
+                    correct += 1
+            return correct/rounds
 
     def reset(self):
         '''Reset the score'''
