@@ -4,7 +4,7 @@ import time
 from functools import partial
 import random
 import numpy as np
-import os.path
+import os
 import urllib
 
 from camera import ImageProvider
@@ -214,7 +214,17 @@ class Application(App):
 
 if __name__ == '__main__':
     # Download the weights if needed
-    if not os.path.exists('model/yolov3-rps.weights'):
+    weights_path = 'model/yolov3-rps.weights'
+    weights_file_size = 0
+    try:
+        statinfo = os.stat(weights_path)
+        weights_file_size = statinfo.st_size
+    except OSError:
+        pass
+
+    if not os.path.exists(weights_path) or weights_file_size < 1024:
+        # Git LFS placeholder is less than 1024 bytes
+        # and should be replaced
         try:
             # https://stackoverflow.com/a/22776
             weights_url = "https://nickhunter.com/IS/yolov3-rps.weights"
@@ -222,6 +232,10 @@ if __name__ == '__main__':
 
             download = urllib.request.urlopen(weights_url)
             f = open('model/' + file_name, 'wb')
+
+            if weights_file_size > 0:
+                f.seek(0)
+                f.truncate()
 
             file_size = int(download.getheader("Content-Length"))
             print("Downloading: %s Bytes: %s" % (file_name, file_size))
