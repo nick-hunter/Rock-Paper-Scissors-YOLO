@@ -85,7 +85,7 @@ class Game:
         elif round_result == -1:
             self.player_score += 1
 
-        print(self.calculate_prediction_accuracy())
+        print('Prediction accuracy: ' + str(self.calculate_prediction_accuracy()))
 
     def remove_round(self):
         '''Remove the last round from history and recalculate score'''
@@ -137,7 +137,6 @@ class Game:
 
         if rounds == len(self.prediction_history):
             for i in range(len(self.history)):
-                print(i)
                 if self.history[i].player == self.prediction_history[i]:
                     correct += 1
             return correct/rounds

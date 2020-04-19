@@ -4,6 +4,8 @@ import time
 from functools import partial
 import random
 import numpy as np
+import os.path
+import urllib
 
 from camera import ImageProvider
 from process import ImageProcessor
@@ -108,6 +110,7 @@ class Application(App):
 
     def start_game(self, instance):
         '''Called to start a new game of Rock Paper Scissors'''
+        self.camera.clear_frames()
         wait_interval = self.configuration.get_property('wait_interval')
 
         labels = ["Rock", "Paper", "Scissors", "Shoot"]
@@ -210,4 +213,36 @@ class Application(App):
 
 
 if __name__ == '__main__':
+    # Download the weights if needed
+    if not os.path.exists('model/yolov3-rps.weights'):
+        try:
+            # https://stackoverflow.com/a/22776
+            weights_url = "https://nickhunter.com/IS/yolov3-rps.weights"
+            file_name = weights_url.split('/')[-1]
+
+            download = urllib.request.urlopen(weights_url)
+            f = open('model/' + file_name, 'wb')
+
+            file_size = int(download.getheader("Content-Length"))
+            print("Downloading: %s Bytes: %s" % (file_name, file_size))
+
+            file_size_dl = 0
+            block_size = 8192
+
+            while True:
+                buffer = download.read(block_size)
+                if not buffer:
+                    break
+
+                file_size_dl += len(buffer)
+                f.write(buffer)
+                if file_size_dl % 819200 == 0:
+                    status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+                    status = status + chr(8)*(len(status)+1)
+                    print(status)
+
+            f.close()
+        except urllib.error.URLError:
+            print('There was an issue downloading the weights file.')
+
     Application().run()

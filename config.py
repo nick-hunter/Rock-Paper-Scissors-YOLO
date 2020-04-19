@@ -21,7 +21,7 @@ class Config:
                 'confThreshold': 0.5,
                 'nmsThreshold': 0.4,
                 'circle_scale': 0.65,
-                'wait_interval': 0.5,
+                'wait_interval': 0.6,
                 'labelbox_key': None,
                 'labelbox_dataset': None,
                 'corrections_path': 'pictures'
