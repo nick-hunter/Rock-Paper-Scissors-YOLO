@@ -5,7 +5,7 @@ from config import Config
 import pytest
 
 # Fake ImageProvider class to test ImageProcessor class
-class ImageProvider:
+class MockImageProvider:
     def __init__(self):
         self.test_image = cv.imread('tests/test.jpg',1)
 
@@ -19,8 +19,8 @@ class ImageProvider:
     def clear_frames(self):
         pass
 
-def test_image_provider():
-    img_provider = ImageProvider()
+def test_yolo():
+    img_provider = MockImageProvider()
     config = Config()
 
     img_processor = ImageProcessor(img_provider, config)

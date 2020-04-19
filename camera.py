@@ -18,10 +18,16 @@ class ImageProvider:
         self.current_camera = self.cameras[0]['index']
         self.cap = cv.VideoCapture(self.current_camera)
 
+        ret, img = self.cap.read()
+        if not ret and len(self.cameras) > 1:
+            # Try the second camera
+            self.current_camera = self.cameras[1]['index']
+            self.cap = cv.VideoCapture(self.current_camera)
+
         self.framesThread = Thread(target=self.frames_thread_body, daemon=True)
         self.framesThread.start()
 
-    def find_cameras(self, count=1):
+    def find_cameras(self, count=2):
         '''Enumerate through a number of cameras.
 
         Args:

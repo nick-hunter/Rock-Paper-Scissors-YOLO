@@ -36,3 +36,11 @@ Several configuration values are read in from a config.json file. If config.json
 
 ##### Labelbox
 Uploading images with misdetected gestures to Labelbox is supported. A Labelbox API key and dataset ID can be set in config.json. API keys can be generated under the Account section of your Labelbox account. Dataset IDs can be found in Labelbox URLs. Click on a dataset from the Datasets tab and then copy the string after dataset/ in the URL. For example, copy x's from https://app.labelbox.com/dataset/xxxxxxxxxxxxxxxxxxxxxxxxx
+
+### Tests
+The pytest framework is used to preform unit tests. From the root project directory in the terminal, run
+```shell
+pytest
+```
+
+If you're using a virtual environment, make sure it is enabled first. 
