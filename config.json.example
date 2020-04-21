@@ -1,6 +1,6 @@
 {
     "classes_path": "model/obj.names",
-    "cfg_path": "model/yolov3-three.cfg",
+    "cfg_path": "model/yolov3-rps.cfg",
     "weights_path": "model/yolov3-rps.weights",
     "inpWidth": 416,
     "inpHeight": 416,

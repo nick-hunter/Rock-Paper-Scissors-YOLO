@@ -12,7 +12,7 @@ class Config:
             print('config.json not found. Using defaults.')
             self._config = {
                 'classes_path': 'model/obj.names',
-                'cfg_path': 'model/yolov3-three.cfg',
+                'cfg_path': 'model/yolov3-rps.cfg',
                 'weights_path': 'model/yolov3-rps.weights',
                 'inpWidth': 416,
                 'inpHeight': 416,
