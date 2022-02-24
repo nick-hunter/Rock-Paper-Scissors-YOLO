@@ -147,7 +147,7 @@ class ImageProcessor:
 
                     for out in outs:
                         for detection in out:
-                            scores = detection[5:8]
+                            scores = detection[5:]
                             classId = np.argmax(scores)
                             confidence = scores[classId]
                             if confidence > confThreshold:
@@ -162,10 +162,9 @@ class ImageProcessor:
                                 confidences.append(float(confidence))
                                 boxes.append([left, top, width, height])
 
-                    indices = cv.dnn.NMSBoxes(boxes, confidences,
-                                              confThreshold, nmsThreshold)
+                    indices = np.arange(0, len(classIDs))
+
                     for i in indices:
-                        i = i[0]
                         box = boxes[i]
                         left = box[0]
                         top = box[1]

@@ -8,6 +8,7 @@ from keras.models import Sequential
 from keras.layers.core import Activation, Dropout, Dense
 from keras.layers import Flatten, LSTM
 from keras.layers import Input
+from keras.utils import np_utils
 from utils import file_path
 
 # Named tuple to hold game rounds
@@ -120,7 +121,7 @@ class Game:
         }
 
         if len(self.model_input) >  0:
-            X_ = keras.utils.to_categorical(self.model_input, 3)
+            X_ = keras.utils.np_utils.to_categorical(self.model_input, 3)
             X_ = X_.reshape(1, X_.shape[0], 6)
             prediction = self.model.predict(X_,batch_size=1)
             self.prediction_history.append(self.rps[np.argmax(prediction)])
