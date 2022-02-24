@@ -187,7 +187,7 @@ class Application(App):
         '''
         try:
             buf1 = cv.flip(img, 0)
-            buf = buf1.tostring()
+            buf = buf1.tobytes()
             texture1 = Texture.create(size=(img.shape[1], img.shape[0]),
                                       colorfmt='bgr')
             texture1.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
